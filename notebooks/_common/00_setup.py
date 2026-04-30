@@ -9,11 +9,12 @@ def _register_project_root():
     )
     absolute_path = Path("/Workspace") / notebook_path.lstrip("/")
     for candidate in [absolute_path.parent, *absolute_path.parents]:
-        if (candidate / "src").exists():
-            candidate_path = str(candidate)
-            if candidate_path not in sys.path:
-                sys.path.insert(0, candidate_path)
-            return candidate_path
+        src_path = candidate / "src"
+        if src_path.exists():
+            src_path_str = str(src_path)
+            if src_path_str not in sys.path:
+                sys.path.insert(0, src_path_str)
+            return src_path_str
     raise RuntimeError("Could not locate bundle project root from notebook path.")
 
 
