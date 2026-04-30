@@ -16,3 +16,9 @@ Main implementation areas:
 - `src/lineage_poc/` reusable Python helpers for lineage, quality, and YAML generation
 - `resources/jobs/` Declarative Automation Bundle job definitions
 - `databricks.yml` bundle entry point
+
+Available bundle jobs:
+
+- `Generate_Lineage_YAML`
+- `Load_Lineage_Sales_Summary`
+- `POC_End_To_End_Demo`
