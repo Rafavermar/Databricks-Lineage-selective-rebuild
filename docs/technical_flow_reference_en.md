@@ -187,6 +187,7 @@ Deployed by the Asset Bundle:
 
 - `Generate_Lineage_YAML`
 - `Load_Lineage_Sales_Summary`
+- `POC_End_To_End_Demo`
 
 ### Dynamic workflow description layer
 
@@ -226,6 +227,28 @@ The rank gates are simple synchronization barriers. They make the dependency
 ordering obvious and ensure upstream layers complete before downstream layers
 start.
 
+## How the end-to-end demo workflow is arranged
+
+The bundled `POC_End_To_End_Demo` job is a convenience workflow for repeated
+demonstrations and regression checks.
+
+Its phases are:
+
+1. bootstrap
+2. clean baseline source generation
+3. full base pipeline for sales and inventory
+4. baseline quality check
+5. defect injection on sales
+6. sales-only rebuild to reproduce the defect in Gold
+7. failing quality check
+8. sales source repair
+9. lineage YAML generation
+10. selective sales rebuild path
+11. final quality validation
+
+This job is intentionally additive. It does not change the manual notebook path
+or the existing selective rebuild job.
+
 ## Runtime view: what happens when you run it
 
 ### Base full load
@@ -248,6 +271,14 @@ start.
 5. Review audit logs and quality results
 6. Confirm no inventory tasks were executed
 
+### Full automatic demonstration flow
+
+1. Run `POC_End_To_End_Demo`
+2. Confirm the baseline quality task passes
+3. Confirm the failing quality task records the injected defect
+4. Confirm the final selective rebuild quality task passes
+5. Confirm the selective section does not execute inventory tasks
+
 ## Main audit tables to inspect
 
 - `workspace.audit.lineage_edges`
@@ -263,9 +294,25 @@ start.
 - `workspace.audit.quality_results`
   Gold quality outcomes before and after the fix.
 
-## Tomorrow's execution checklist
+## Suggested evidence capture
 
-To see the whole project in action tomorrow, run in this exact order:
+For a later article or internal documentation, the highest-value screenshots are:
+
+1. Workflows page showing the three deployed jobs
+2. Bootstrap notebook output with storage mode and landing root
+3. Source generation output with `INJECT_DEFECTS=true`
+4. `gold.v_sales_summary` before the fix
+5. `workspace.audit.quality_results` showing failure
+6. `workspace.audit.lineage_bfs_results` by hop
+7. `workspace.audit.lineage_job_candidates` by rank
+8. Generated YAML preview from `90_generate_lineage_yaml.py`
+9. `Load_Lineage_Sales_Summary` task graph and successful run
+10. `workspace.audit.run_log` filtered to prove inventory tasks did not run
+11. `workspace.audit.quality_results` showing the final pass
+
+## Execution checklist
+
+To see the whole project in action, run in this exact order:
 
 1. `00_bootstrap_poc.py`
 2. `01_generate_source_data.py` with `INJECT_DEFECTS=true`

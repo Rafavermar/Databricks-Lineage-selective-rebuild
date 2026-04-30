@@ -116,6 +116,15 @@ You can also open the Workflows UI and run manually:
 
 1. `Generate_Lineage_YAML`
 2. `Load_Lineage_Sales_Summary`
+3. `POC_End_To_End_Demo`
+
+Recommended usage:
+
+1. Use the manual notebook flow when you want clean screenshots and step-by-step
+   evidence.
+2. Use `POC_End_To_End_Demo` when you want one reproducible workflow run that
+   covers baseline pass, defect injection, failing quality, fix, lineage YAML
+   generation, and selective sales rebuild.
 
 ## 8. First cycle with the defect
 
@@ -156,7 +165,26 @@ Run `90_generate_lineage_yaml.py` with:
 In smoke mode the generator limits tasks by rank and does not append the final
 target task or the quality validation task, which keeps the execution coherent.
 
-## 11. Validation queries
+## 11. End-to-end demo job sequence
+
+The `POC_End_To_End_Demo` workflow runs these phases in order:
+
+1. bootstrap the POC objects
+2. generate a clean baseline source
+3. execute the full raw to gold pipeline for sales and inventory
+4. validate the clean sales baseline
+5. inject the sales source defect
+6. rebuild only the sales branch to reproduce the failure
+7. validate the failing sales quality state
+8. fix the sales source
+9. generate the selective rebuild YAML
+10. execute the selective sales rebuild branch only
+11. validate the repaired sales quality state
+
+It is safe to add because it does not replace the existing jobs or change the
+underlying notebooks. It only orchestrates them in a longer sequence.
+
+## 12. Validation queries
 
 ### Edge count by hop
 
@@ -196,7 +224,7 @@ WHERE target_table = 'workspace.gold.v_sales_summary'
 
 This query must return zero rows for the selective sales rebuild.
 
-## 12. Implemented fallbacks
+## 13. Implemented fallbacks
 
 1. Lineage:
    - Preferred: `system.access.table_lineage`
@@ -210,7 +238,7 @@ This query must return zero rows for the selective sales rebuild.
    - Default first-time-works path: notebook framework backed by
      `workspace.audit.quality_results`
 
-## 13. Verified official references
+## 14. Verified official references
 
 1. Free Edition limitations:
    https://learn.microsoft.com/azure/databricks/getting-started/free-edition-limitations

@@ -115,6 +115,15 @@ También puedes abrir Workflows UI y lanzar manualmente:
 
 1. `Generate_Lineage_YAML`
 2. `Load_Lineage_Sales_Summary`
+3. `POC_End_To_End_Demo`
+
+Uso recomendado:
+
+1. Usa la ejecución manual por notebooks cuando quieras capturas limpias y
+   evidencia paso a paso.
+2. Usa `POC_End_To_End_Demo` cuando quieras una ejecución reproducible que
+   encadene baseline correcto, inyección del defecto, fallo de calidad,
+   corrección, generación del YAML y selective rebuild de sales.
 
 ## 8. Primer ciclo con defecto
 
@@ -155,7 +164,26 @@ Ejecuta `90_generate_lineage_yaml.py` con:
 En modo smoke el generador limita las tareas por rank y no añade el target final
 ni la validación de calidad, para mantener una ejecución coherente.
 
-## 11. Consultas de validación
+## 11. Secuencia del job end-to-end
+
+El workflow `POC_End_To_End_Demo` ejecuta estas fases:
+
+1. bootstrap de objetos del POC
+2. generación de fuente baseline sin defectos
+3. ejecución completa raw a gold para sales e inventory
+4. validación de baseline limpio para sales
+5. inyección del defecto en la fuente de sales
+6. reconstrucción solo de la rama de sales para reproducir el fallo
+7. validación del estado fallido de calidad
+8. corrección de la fuente de sales
+9. generación del YAML de selective rebuild
+10. ejecución solo de la rama selectiva de sales
+11. validación final de la reparación
+
+Se puede añadir sin romper nada porque no sustituye los jobs existentes ni cambia
+los notebooks base. Solo los orquesta en una secuencia más larga.
+
+## 12. Consultas de validación
 
 ### Conteo de edges por hop
 
@@ -195,7 +223,7 @@ WHERE target_table = 'workspace.gold.v_sales_summary'
 
 Debe devolver cero filas para el selective rebuild de sales.
 
-## 12. Fallbacks implementados
+## 13. Fallbacks implementados
 
 1. Lineage:
    - Preferido: `system.access.table_lineage`
@@ -208,7 +236,7 @@ Debe devolver cero filas para el selective rebuild de sales.
    - Opcional: notebook DLT/Lakeflow expectations
    - Default first-time-works: framework notebook con `workspace.audit.quality_results`
 
-## 13. Fuentes oficiales verificadas
+## 14. Fuentes oficiales verificadas
 
 1. Free Edition limitations:
    https://learn.microsoft.com/azure/databricks/getting-started/free-edition-limitations
