@@ -54,6 +54,21 @@ Databricks Free Edition. The core idea is simple:
   `notebooks/curated/`, `notebooks/gold/`
   Layer-specific transformation notebooks.
 
+## Execution context note
+
+This project uses a `src/` layout for reusable Python helpers. That matters in
+Databricks:
+
+1. In a Git folder, Databricks typically auto-appends the repository root to
+   `sys.path`, not `src/`.
+2. In this repo, importing `lineage_poc` requires `.../src` to be on
+   `sys.path`.
+3. The shared setup notebook therefore derives the project root from the
+   current notebook path and appends the sibling `src/` directory explicitly.
+
+This is why the setup code is path-aware instead of relying on default import
+behavior.
+
 ## Data model and dependencies
 
 ### Sources
