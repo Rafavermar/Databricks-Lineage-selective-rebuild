@@ -5,7 +5,6 @@ from typing import List, Optional
 from pyspark.sql import DataFrame, SparkSession, functions as F, types as T
 
 from lineage_poc.config import LAYER_DEFINITIONS, PocConfig, normalize_table_name
-from lineage_poc.path_inference import infer_relative_notebook_path
 
 
 def append_lineage_edges(
@@ -166,16 +165,114 @@ def select_run_candidates(
     bfs_edges_df: DataFrame,
     notebook_base: str,
 ) -> DataFrame:
-    infer_udf = F.udf(
-        lambda full_name: infer_relative_notebook_path(full_name, notebook_base),
-        T.StringType(),
-    )
-    return (
+    candidates_df = (
         bfs_edges_df.groupBy("from_full", "from_rank")
         .agg(F.max("hop").alias("max_hop"))
-        .withColumn("rel_notebook_path", infer_udf("from_full"))
+        .withColumn("from_schema_name", F.split("from_full", "\\.").getItem(1))
+        .withColumn("table_name", F.split("from_full", "\\.").getItem(2))
+        .withColumn("table_tokens", F.split("table_name", "_"))
+        .withColumn("token_0", F.col("table_tokens").getItem(0))
+        .withColumn("token_1", F.col("table_tokens").getItem(1))
+        .withColumn("curated_folder", _curated_folder_expr(F.col("table_name")))
+        .withColumn("product_name", _product_name_expr())
+        .withColumn("module_name", _module_name_expr())
+        .withColumn(
+            "rel_notebook_path",
+            _relative_notebook_path_expr(notebook_base),
+        )
         .where(F.col("rel_notebook_path").isNotNull())
-        .orderBy(F.col("from_rank").asc(), F.col("max_hop").desc(), F.col("rel_notebook_path"))
+        .select("from_full", "from_rank", "max_hop", "rel_notebook_path")
+        .orderBy(
+            F.col("from_rank").asc(),
+            F.col("max_hop").desc(),
+            F.col("rel_notebook_path"),
+        )
+    )
+    return candidates_df
+
+
+def _relative_notebook_path_expr(notebook_base: str) -> F.Column:
+    schema_col = F.col("from_schema_name")
+    table_col = F.col("table_name")
+    numeric_suffix = r"(?:_)?\d{6,}$"
+
+    return (
+        F.when(table_col.rlike(numeric_suffix), F.lit(None).cast("string"))
+        .when(
+            schema_col == "gold",
+            F.concat(
+                F.lit(f"{notebook_base}/gold/dml/consumer/"),
+                table_col,
+                F.lit(".py"),
+            ),
+        )
+        .when(
+            schema_col == "curated",
+            F.concat(
+                F.lit(f"{notebook_base}/curated/dml/"),
+                F.col("curated_folder"),
+                F.lit("/"),
+                table_col,
+                F.lit(".py"),
+            ),
+        )
+        .when(
+            schema_col.isin("raw", "stage", "core"),
+            F.concat(
+                F.lit(f"{notebook_base}/"),
+                schema_col,
+                F.lit("/dml/"),
+                F.col("product_name"),
+                F.lit("/"),
+                F.col("module_name"),
+                F.lit("/"),
+                table_col,
+                F.lit(".py"),
+            ),
+        )
+        .otherwise(F.lit(None).cast("string"))
+    )
+
+
+def _curated_folder_expr(table_col: F.Column) -> F.Column:
+    return (
+        F.when(table_col.startswith("dim"), F.lit("dim"))
+        .when(table_col.startswith("fact"), F.lit("fact"))
+        .when(table_col.startswith("aux"), F.lit("auxiliary"))
+        .when(table_col.startswith("helper"), F.lit("helper"))
+        .otherwise(F.lit("kpi"))
+    )
+
+
+def _product_name_expr() -> F.Column:
+    table_col = F.col("table_name")
+    schema_col = F.col("from_schema_name")
+    token_0 = F.col("token_0")
+    token_1 = F.col("token_1")
+
+    return (
+        F.when(table_col == "dim_date", F.lit("SHARED"))
+        .when(table_col == "fact_sales", F.lit("SALES"))
+        .when(table_col == "fact_inventory", F.lit("INVENTORY"))
+        .when(table_col.startswith("fact_"), F.upper(token_1))
+        .when(table_col.startswith("dim_"), F.lit("SHARED"))
+        .when((schema_col == "core") & (F.upper(token_1) == "DATE"), F.lit("SHARED"))
+        .otherwise(F.upper(F.coalesce(token_0, F.lit("COMMON"))))
+    )
+
+
+def _module_name_expr() -> F.Column:
+    table_col = F.col("table_name")
+    schema_col = F.col("from_schema_name")
+    token_1 = F.col("token_1")
+
+    return (
+        F.when(table_col == "dim_date", F.lit("CALENDAR"))
+        .when(table_col.isin("fact_sales", "fact_inventory"), F.lit("FACT"))
+        .when(table_col.startswith("fact_"), F.lit("FACT"))
+        .when(table_col.startswith("dim_"), F.upper(token_1))
+        .when((schema_col == "core") & (F.upper(token_1) == "DATE"), F.lit("CALENDAR"))
+        .otherwise(F.upper(F.coalesce(token_1, F.lit("GENERAL"))))
     )
 
 
