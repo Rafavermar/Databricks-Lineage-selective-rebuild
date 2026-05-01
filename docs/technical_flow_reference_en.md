@@ -47,7 +47,7 @@ Databricks Free Edition. The core idea is simple:
   shared helpers.
 - `notebooks/00_admin/`
   Bootstrap, source generation, fix simulation, YAML generation, optional DLT
-  sample, and sanity checks.
+  sample, sanity checks, and optional POC reset.
 - `notebooks/ops/`
   Start, barrier, preload, and completion control notebooks used by workflows.
 - `notebooks/raw/`, `notebooks/stage/`, `notebooks/core/`,
@@ -167,11 +167,11 @@ orchestrator.
 Examples:
 
 - `workspace.raw.sales_orders`
-  -> `notebooks/raw/dml/SALES/ORDERS/sales_orders.py`
+  -> `notebooks/raw/dml/SALES/ORDERS/sales_orders`
 - `workspace.core.fact_sales`
-  -> `notebooks/core/dml/SALES/FACT/fact_sales.py`
+  -> `notebooks/core/dml/SALES/FACT/fact_sales`
 - `workspace.gold.v_sales_summary`
-  -> `notebooks/gold/dml/consumer/v_sales_summary.py`
+  -> `notebooks/gold/dml/consumer/v_sales_summary`
 
 Safe filtering:
 
@@ -270,6 +270,26 @@ Its phases are:
 
 This job is intentionally additive. It does not change the manual notebook path
 or the existing selective rebuild job.
+
+## Reset and repeatability
+
+The POC can be rerun without resetting. Most data-layer tables are overwritten,
+and the generated BFS output is replaced per target. However, audit tables such
+as `run_log`, `quality_results`, and `lineage_edges` are append-oriented, so a
+repeat run will keep historical evidence.
+
+For a clean demonstration, run `notebooks/00_admin/99_reset_poc` with:
+
+- `CONFIRM_RESET = RESET_POC`
+
+The reset notebook drops known POC tables/views and audit tables, then recreates
+empty audit tables through the normal bootstrap helper. It keeps the catalog,
+schemas, and volume.
+
+After reset, you can either:
+
+- run the manual flow again
+- run the single `POC_End_To_End_Demo` workflow
 
 ## Runtime view: what happens when you run it
 

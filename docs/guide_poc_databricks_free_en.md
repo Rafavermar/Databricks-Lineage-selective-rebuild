@@ -125,6 +125,8 @@ Recommended usage:
 2. Use `POC_End_To_End_Demo` when you want one reproducible workflow run that
    covers baseline pass, defect injection, failing quality, fix, lineage YAML
    generation, and selective sales rebuild.
+3. Use `99_reset_poc` with `CONFIRM_RESET = RESET_POC` before a clean repeatable
+   demo run.
 
 ## 8. First cycle with the defect
 
@@ -187,6 +189,9 @@ The `POC_End_To_End_Demo` workflow runs these phases in order:
 
 It is safe to add because it does not replace the existing jobs or change the
 underlying notebooks. It only orchestrates them in a longer sequence.
+
+Rerunning the job without reset is allowed. The layer tables are overwritten, but
+audit tables keep historical rows. Use reset when you need clean screenshots.
 
 ## 12. Validation queries
 
