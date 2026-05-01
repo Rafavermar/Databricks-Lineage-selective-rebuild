@@ -1,5 +1,6 @@
 # Databricks notebook source
 from pathlib import Path
+import importlib
 import sys
 
 
@@ -18,6 +19,24 @@ def _register_project_root():
 
 
 PROJECT_ROOT = _register_project_root()
+
+
+def _reload_project_modules():
+    importlib.invalidate_caches()
+    module_names = [
+        "lineage_poc.config",
+        "lineage_poc.path_inference",
+        "lineage_poc.runtime",
+        "lineage_poc.lineage",
+        "lineage_poc.quality",
+        "lineage_poc.yaml_generator",
+    ]
+    for module_name in module_names:
+        if module_name in sys.modules:
+            importlib.reload(sys.modules[module_name])
+
+
+_reload_project_modules()
 
 from pyspark.sql import functions as F  # noqa: E402
 from pyspark.sql import types as T  # noqa: E402
