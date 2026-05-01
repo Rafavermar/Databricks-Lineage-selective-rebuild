@@ -7,7 +7,7 @@ resources:
       tasks:
         - task_key: generate_yaml
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/00_admin/90_generate_lineage_yaml.py
+            notebook_path: ${workspace.file_path}/notebooks/00_admin/90_generate_lineage_yaml
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}

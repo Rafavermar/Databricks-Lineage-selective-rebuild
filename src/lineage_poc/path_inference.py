@@ -18,12 +18,12 @@ def infer_relative_notebook_path(
         return None
 
     if schema_name == "gold":
-        return f"{notebook_base}/gold/dml/consumer/{table_name}.py"
+        return f"{notebook_base}/gold/dml/consumer/{table_name}"
     if schema_name == "curated":
-        return f"{notebook_base}/curated/dml/{_curated_folder(table_name)}/{table_name}.py"
+        return f"{notebook_base}/curated/dml/{_curated_folder(table_name)}/{table_name}"
     if schema_name in {"raw", "stage", "core"}:
         product_name, module_name = _product_module_for(schema_name, table_name)
-        return f"{notebook_base}/{schema_name}/dml/{product_name}/{module_name}/{table_name}.py"
+        return f"{notebook_base}/{schema_name}/dml/{product_name}/{module_name}/{table_name}"
     return None
 
 

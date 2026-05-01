@@ -19,12 +19,12 @@ def build_job_payload(
     tasks: List[Dict[str, object]] = [
         _task(
             "Start_Load",
-            f"${{workspace.file_path}}/{config.notebook_base}/ops/start_load.py",
+            f"${{workspace.file_path}}/{config.notebook_base}/ops/start_load",
             config,
         ),
         _task(
             "Preload_Run_Context",
-            f"${{workspace.file_path}}/{config.notebook_base}/ops/preload_run_context.py",
+            f"${{workspace.file_path}}/{config.notebook_base}/ops/preload_run_context",
             config,
             depends_on=["Start_Load"],
             extra_params={"MAX_HOPS": str(config.max_hops)},
@@ -56,7 +56,7 @@ def build_job_payload(
         tasks.append(
             _task(
                 gate_key,
-                f"${{workspace.file_path}}/{config.notebook_base}/ops/gate_rank.py",
+                f"${{workspace.file_path}}/{config.notebook_base}/ops/gate_rank",
                 config,
                 depends_on=current_task_keys,
                 extra_params={"RANK": str(rank)},
@@ -80,7 +80,7 @@ def build_job_payload(
         tasks.append(
             _task(
                 "Validate_Target_Quality",
-                f"${{workspace.file_path}}/{config.notebook_base}/00_admin/06_run_sanity_checks.py",
+                f"${{workspace.file_path}}/{config.notebook_base}/00_admin/06_run_sanity_checks",
                 config,
                 depends_on=[f"target_{target_name}"],
                 extra_params={"RUN_QUALITY_ONLY": "true"},
@@ -91,7 +91,7 @@ def build_job_payload(
     tasks.append(
         _task(
             "Complete_Load",
-            f"${{workspace.file_path}}/{config.notebook_base}/ops/complete_load.py",
+            f"${{workspace.file_path}}/{config.notebook_base}/ops/complete_load",
             config,
             depends_on=[prior_gate],
         )

@@ -7,7 +7,7 @@ resources:
       tasks:
         - task_key: Start_Load
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/start_load.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/start_load
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -17,7 +17,7 @@ resources:
           depends_on:
             - task_key: Start_Load
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/preload_run_context.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/preload_run_context
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -29,7 +29,7 @@ resources:
           depends_on:
             - task_key: Preload_Run_Context
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/raw/dml/SALES/ORDERS/sales_orders.py
+            notebook_path: ${workspace.file_path}/notebooks/raw/dml/SALES/ORDERS/sales_orders
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -39,7 +39,7 @@ resources:
           depends_on:
             - task_key: raw_sales_orders
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -50,7 +50,7 @@ resources:
           depends_on:
             - task_key: Gate_R2
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/stage/dml/SALES/ORDERS/sales_orders_clean.py
+            notebook_path: ${workspace.file_path}/notebooks/stage/dml/SALES/ORDERS/sales_orders_clean
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -60,7 +60,7 @@ resources:
           depends_on:
             - task_key: stage_sales_orders_clean
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -71,7 +71,7 @@ resources:
           depends_on:
             - task_key: Gate_R3
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/core/dml/SHARED/CALENDAR/dim_date.py
+            notebook_path: ${workspace.file_path}/notebooks/core/dml/SHARED/CALENDAR/dim_date
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -81,7 +81,7 @@ resources:
           depends_on:
             - task_key: Gate_R3
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/core/dml/SALES/FACT/fact_sales.py
+            notebook_path: ${workspace.file_path}/notebooks/core/dml/SALES/FACT/fact_sales
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -92,7 +92,7 @@ resources:
             - task_key: core_dim_date
             - task_key: core_fact_sales
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -103,7 +103,7 @@ resources:
           depends_on:
             - task_key: Gate_R4
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/curated/dml/kpi/sales_kpis.py
+            notebook_path: ${workspace.file_path}/notebooks/curated/dml/kpi/sales_kpis
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -113,7 +113,7 @@ resources:
           depends_on:
             - task_key: curated_sales_kpis
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -124,7 +124,7 @@ resources:
           depends_on:
             - task_key: Gate_R5
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/gold/dml/consumer/v_sales_summary.py
+            notebook_path: ${workspace.file_path}/notebooks/gold/dml/consumer/v_sales_summary
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -134,7 +134,7 @@ resources:
           depends_on:
             - task_key: target_gold_v_sales_summary
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/00_admin/06_run_sanity_checks.py
+            notebook_path: ${workspace.file_path}/notebooks/00_admin/06_run_sanity_checks
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}
@@ -145,7 +145,7 @@ resources:
           depends_on:
             - task_key: Validate_Target_Quality
           notebook_task:
-            notebook_path: ${workspace.file_path}/notebooks/ops/complete_load.py
+            notebook_path: ${workspace.file_path}/notebooks/ops/complete_load
             base_parameters:
               CATALOG_NAME: ${var.catalog_name}
               VOLUME_NAME: ${var.volume_name}

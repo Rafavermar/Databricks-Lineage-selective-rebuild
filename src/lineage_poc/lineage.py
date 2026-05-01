@@ -207,7 +207,7 @@ def _relative_notebook_path_expr(notebook_base: str) -> F.Column:
             F.concat(
                 F.lit(f"{notebook_base}/gold/dml/consumer/"),
                 table_col,
-                F.lit(".py"),
+                F.lit(""),
             ),
         )
         .when(
@@ -217,7 +217,7 @@ def _relative_notebook_path_expr(notebook_base: str) -> F.Column:
                 F.col("curated_folder"),
                 F.lit("/"),
                 table_col,
-                F.lit(".py"),
+                F.lit(""),
             ),
         )
         .when(
@@ -231,7 +231,7 @@ def _relative_notebook_path_expr(notebook_base: str) -> F.Column:
                 F.col("module_name"),
                 F.lit("/"),
                 table_col,
-                F.lit(".py"),
+                F.lit(""),
             ),
         )
         .otherwise(F.lit(None).cast("string"))
