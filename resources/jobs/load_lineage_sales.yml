@@ -1,0 +1,152 @@
+resources:
+  jobs:
+    load_lineage_sales_summary:
+      name: Load_Lineage_Sales_Summary
+      queue:
+        enabled: true
+      tasks:
+        - task_key: Start_Load
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/start_load
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Preload_Run_Context
+          depends_on:
+            - task_key: Start_Load
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/preload_run_context
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              MAX_HOPS: ${var.max_hops}
+              LINEAGE_SOURCE: ${var.lineage_source}
+
+        - task_key: raw_sales_orders
+          depends_on:
+            - task_key: Preload_Run_Context
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/raw/dml/SALES/ORDERS/sales_orders
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Gate_R2
+          depends_on:
+            - task_key: raw_sales_orders
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              RANK: "2"
+
+        - task_key: stage_sales_orders_clean
+          depends_on:
+            - task_key: Gate_R2
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/stage/dml/SALES/ORDERS/sales_orders_clean
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Gate_R3
+          depends_on:
+            - task_key: stage_sales_orders_clean
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              RANK: "3"
+
+        - task_key: core_dim_date
+          depends_on:
+            - task_key: Gate_R3
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/core/dml/SHARED/CALENDAR/dim_date
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: core_fact_sales
+          depends_on:
+            - task_key: Gate_R3
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/core/dml/SALES/FACT/fact_sales
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Gate_R4
+          depends_on:
+            - task_key: core_dim_date
+            - task_key: core_fact_sales
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              RANK: "4"
+
+        - task_key: curated_sales_kpis
+          depends_on:
+            - task_key: Gate_R4
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/curated/dml/kpi/sales_kpis
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Gate_R5
+          depends_on:
+            - task_key: curated_sales_kpis
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/gate_rank
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              RANK: "5"
+
+        - task_key: target_gold_v_sales_summary
+          depends_on:
+            - task_key: Gate_R5
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/gold/dml/consumer/v_sales_summary
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+
+        - task_key: Validate_Target_Quality
+          depends_on:
+            - task_key: target_gold_v_sales_summary
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/00_admin/06_run_sanity_checks
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary
+              RUN_QUALITY_ONLY: "true"
+
+        - task_key: Complete_Load
+          depends_on:
+            - task_key: Validate_Target_Quality
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/ops/complete_load
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: gold.v_sales_summary

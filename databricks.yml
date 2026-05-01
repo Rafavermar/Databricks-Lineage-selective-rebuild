@@ -1,0 +1,38 @@
+bundle:
+  name: lineage-selective-rebuild-poc
+
+include:
+  - resources/jobs/*.yml
+
+variables:
+  catalog_name:
+    description: Unity Catalog name for the POC.
+    default: workspace
+  volume_name:
+    description: Volume used for landing, checkpoints, and generated YAML.
+    default: poc_volume
+  notebook_path:
+    description: Relative notebook base inside the bundle.
+    default: notebooks
+  target_table_name:
+    description: Default Gold target for the selective rebuild demo.
+    default: gold.v_sales_summary
+  max_hops:
+    description: Default BFS depth.
+    default: "6"
+  test_ranks:
+    description: Optional comma-separated ranks for smoke test generation.
+    default: ""
+  test_limit_per_rank:
+    description: Optional max number of notebooks per rank for smoke tests.
+    default: "0"
+  lineage_source:
+    description: Lineage source for BFS. Use audit for fast POC runs or system for system lineage tables.
+    default: audit
+
+workspace:
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+targets:
+  dev:
+    default: true

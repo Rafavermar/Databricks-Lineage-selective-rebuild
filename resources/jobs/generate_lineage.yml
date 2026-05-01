@@ -1,0 +1,19 @@
+resources:
+  jobs:
+    generate_lineage_yaml:
+      name: Generate_Lineage_YAML
+      queue:
+        enabled: true
+      tasks:
+        - task_key: generate_yaml
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/00_admin/90_generate_lineage_yaml
+            base_parameters:
+              CATALOG_NAME: ${var.catalog_name}
+              VOLUME_NAME: ${var.volume_name}
+              TARGET_TABLE_NAME: ${var.target_table_name}
+              MAX_HOPS: ${var.max_hops}
+              NOTEBOOK_BASE: ${var.notebook_path}
+              TEST_RANKS: ${var.test_ranks}
+              TEST_LIMIT_PER_RANK: ${var.test_limit_per_rank}
+              LINEAGE_SOURCE: ${var.lineage_source}
