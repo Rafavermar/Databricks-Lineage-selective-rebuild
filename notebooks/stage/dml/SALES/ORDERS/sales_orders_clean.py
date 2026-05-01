@@ -19,7 +19,7 @@ with tracked_task(
     cleaned_df = (
         source_df.select(
             "order_id",
-            F.to_date("order_date").alias("order_date"),
+            F.expr("try_cast(order_date AS DATE)").alias("order_date"),
             "customer_id",
             "sku_id",
             F.upper("currency").alias("currency"),

@@ -17,7 +17,7 @@ with tracked_task(
 ) as run_id:
     cleaned_df = spark.table(source_table).select(
         "movement_id",
-        F.to_date("movement_date").alias("movement_date"),
+        F.expr("try_cast(movement_date AS DATE)").alias("movement_date"),
         "warehouse_id",
         "sku_id",
         F.col("quantity_delta").cast("int").alias("quantity_delta"),
