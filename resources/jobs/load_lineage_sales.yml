@@ -23,6 +23,7 @@ resources:
               VOLUME_NAME: ${var.volume_name}
               TARGET_TABLE_NAME: gold.v_sales_summary
               MAX_HOPS: ${var.max_hops}
+              LINEAGE_SOURCE: ${var.lineage_source}
 
         - task_key: raw_sales_orders
           depends_on:

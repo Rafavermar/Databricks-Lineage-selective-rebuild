@@ -104,15 +104,22 @@ that inventory-only notebooks do not run when the sales Gold target is rebuilt.
 
 ## Lineage modes
 
-### Preferred mode
+### Default mode
 
-If `system.access.table_lineage` is available, the BFS reads from that system
-table.
+The default and recommended POC mode is `LINEAGE_SOURCE = audit`. The BFS reads
+from `workspace.audit.lineage_edges`, which is small, deterministic, and fast for
+manual demos.
 
-### Fallback mode
+### System mode
 
-If system lineage is unavailable, every transformation notebook appends its own
-edge set to `workspace.audit.lineage_edges`.
+Use `LINEAGE_SOURCE = system` only when you explicitly want to validate
+`system.access.table_lineage`. System lineage can be slower because it may scan a
+larger system table.
+
+### Audit edge writes
+
+Every transformation notebook appends its own edge set to
+`workspace.audit.lineage_edges`.
 
 Example:
 

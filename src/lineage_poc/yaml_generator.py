@@ -174,6 +174,7 @@ def _task(
         "CATALOG_NAME": config.catalog_name,
         "VOLUME_NAME": config.volume_name,
         "TARGET_TABLE_NAME": config.target_table_name,
+        "LINEAGE_SOURCE": config.lineage_source,
     }
     if extra_params:
         params.update(extra_params)

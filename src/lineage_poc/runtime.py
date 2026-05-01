@@ -32,6 +32,7 @@ def load_config_from_widgets(dbutils) -> PocConfig:
             "test_ranks": get_widget(dbutils, "TEST_RANKS", ""),
             "test_limit_per_rank": get_widget(dbutils, "TEST_LIMIT_PER_RANK", "0"),
             "ingest_mode": get_widget(dbutils, "INGEST_MODE", "auto"),
+            "lineage_source": get_widget(dbutils, "LINEAGE_SOURCE", "audit"),
         }
     )
 

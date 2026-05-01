@@ -290,6 +290,7 @@ resources:
               NOTEBOOK_BASE: ${var.notebook_path}
               TEST_RANKS: ""
               TEST_LIMIT_PER_RANK: "0"
+              LINEAGE_SOURCE: ${var.lineage_source}
 
         - task_key: Start_Load
           depends_on:

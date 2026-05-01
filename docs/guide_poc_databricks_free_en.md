@@ -149,6 +149,10 @@ Recommended usage:
    - `workspace.audit.lineage_bfs_results`
    - `workspace.audit.lineage_job_candidates`
 
+For fast POC runs, keep `LINEAGE_SOURCE = audit`. Use `LINEAGE_SOURCE = system`
+only when you explicitly want to validate Databricks system lineage tables and
+can tolerate extra latency.
+
 Expected result:
 
 1. `gold.v_sales_summary` is corrected.
@@ -227,8 +231,8 @@ This query must return zero rows for the selective sales rebuild.
 ## 13. Implemented fallbacks
 
 1. Lineage:
-   - Preferred: `system.access.table_lineage`
-   - Fallback: `workspace.audit.lineage_edges`
+   - Default for the POC: `workspace.audit.lineage_edges`
+   - Optional: `system.access.table_lineage` with `LINEAGE_SOURCE = system`
 2. Ingestion:
    - Preferred: Auto Loader
    - Fallback: batch JSON

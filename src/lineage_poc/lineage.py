@@ -39,7 +39,8 @@ def append_lineage_edges(
 
 def get_lineage_source_df(spark: SparkSession, config: PocConfig) -> DataFrame:
     system_lineage_name = "system.access.table_lineage"
-    if spark.catalog.tableExists(system_lineage_name):
+    lineage_source = config.lineage_source.lower()
+    if lineage_source == "system" and spark.catalog.tableExists(system_lineage_name):
         return (
             spark.table(system_lineage_name)
             .select(
@@ -54,6 +55,9 @@ def get_lineage_source_df(spark: SparkSession, config: PocConfig) -> DataFrame:
             .withColumn("target_schema", F.split("target_full", "\\.").getItem(1))
             .dropDuplicates(["source_full", "target_full"])
         )
+
+    if lineage_source not in {"audit", "system"}:
+        raise ValueError("LINEAGE_SOURCE must be 'audit' or 'system'.")
 
     return (
         spark.table(config.audit_table("lineage_edges"))

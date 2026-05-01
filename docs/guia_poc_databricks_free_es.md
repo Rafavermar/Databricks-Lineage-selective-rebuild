@@ -148,6 +148,10 @@ Uso recomendado:
    - `workspace.audit.lineage_bfs_results`
    - `workspace.audit.lineage_job_candidates`
 
+Para ejecuciones rápidas del POC, deja `LINEAGE_SOURCE = audit`. Usa
+`LINEAGE_SOURCE = system` solo cuando quieras validar explícitamente las system
+tables de Databricks y puedas asumir más latencia.
+
 Resultado esperado:
 
 1. `gold.v_sales_summary` queda corregida.
@@ -226,8 +230,8 @@ Debe devolver cero filas para el selective rebuild de sales.
 ## 13. Fallbacks implementados
 
 1. Lineage:
-   - Preferido: `system.access.table_lineage`
-   - Fallback: `workspace.audit.lineage_edges`
+   - Default del POC: `workspace.audit.lineage_edges`
+   - Opcional: `system.access.table_lineage` con `LINEAGE_SOURCE = system`
 2. Ingestión:
    - Preferido: Auto Loader
    - Fallback: batch JSON

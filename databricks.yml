@@ -26,6 +26,9 @@ variables:
   test_limit_per_rank:
     description: Optional max number of notebooks per rank for smoke tests.
     default: "0"
+  lineage_source:
+    description: Lineage source for BFS. Use audit for fast POC runs or system for system lineage tables.
+    default: audit
 
 workspace:
   root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

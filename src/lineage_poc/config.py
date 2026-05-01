@@ -34,6 +34,7 @@ class PocConfig:
     test_ranks: str = ""
     test_limit_per_rank: int = 0
     ingest_mode: str = "auto"
+    lineage_source: str = "audit"
 
     def audit_table(self, table_name: str) -> str:
         return f"{self.catalog_name}.{AUDIT_SCHEMA}.{table_name}"
@@ -78,4 +79,5 @@ def build_poc_config(overrides: Optional[Dict[str, object]] = None) -> PocConfig
         test_ranks=str(overrides.get("test_ranks", "")),
         test_limit_per_rank=test_limit,
         ingest_mode=str(overrides.get("ingest_mode", "auto")),
+        lineage_source=str(overrides.get("lineage_source", "audit")).lower(),
     )

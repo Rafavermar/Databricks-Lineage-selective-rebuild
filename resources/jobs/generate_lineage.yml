@@ -16,3 +16,4 @@ resources:
               NOTEBOOK_BASE: ${var.notebook_path}
               TEST_RANKS: ${var.test_ranks}
               TEST_LIMIT_PER_RANK: ${var.test_limit_per_rank}
+              LINEAGE_SOURCE: ${var.lineage_source}
