@@ -14,8 +14,7 @@ Guides:
 
 ## Architecture Diagram
 
-Placeholder: the final architecture diagram will be added here as
-`docs/architecture_diagram.png`.
+![Architecture Diagram](docs/architecture_diagram.png)
 
 ## Sequence Flow
 
